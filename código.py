@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from babel.numbers import format_currency
 
-# 🔑 Chave da API fornecida no código original
+# Chave da API fornecida no código original
 API_KEY = "df337cbc7cc4b0c9568b8bbc"
 BASE_URL = f"https://v6.exchangerate-api.com/v6/{API_KEY}/latest/"
 HISTORICO_CSV = "historico_conversoes.csv"
