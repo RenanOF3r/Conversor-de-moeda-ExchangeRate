@@ -1,8 +1,3 @@
-git add .
-git commit -m "Adicionando conversor de moedas"
-git push origin main
-
-
 import os
 import requests
 import csv
