@@ -6,8 +6,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from babel.numbers import format_currency
 
-# Chave da API fornecida no código original
-API_KEY = "df337cbc7cc4b0c9568b8bbc"
+# 🔑 Obter chave da API do ambiente
+API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
+if not API_KEY:
+    raise ValueError("Erro: Chave da API não encontrada. Defina EXCHANGE_RATE_API_KEY nos Secrets do GitHub.")
+
 BASE_URL = f"https://v6.exchangerate-api.com/v6/{API_KEY}/latest/"
 HISTORICO_CSV = "historico_conversoes.csv"
 
