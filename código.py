@@ -4,13 +4,11 @@ import csv
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import tkinter as tk
-from tkinter import ttk, messagebox
 from babel.numbers import format_currency
 
-# Chave da API fornecida no código original
+# 🔑 Chave da API fornecida no código original
 API_KEY = "df337cbc7cc4b0c9568b8bbc"
-BASE_URL = f"https://v6.exchangerate-api.com/v6/df337cbc7cc4b0c9568b8bbc/latest/"
+BASE_URL = f"https://v6.exchangerate-api.com/v6/{API_KEY}/latest/"
 HISTORICO_CSV = "historico_conversoes.csv"
 
 # Buscar lista de moedas disponíveis
@@ -21,22 +19,19 @@ def obter_moedas():
         data = response.json()
         return list(data.get("conversion_rates", {}).keys())
     except (requests.RequestException, ValueError) as e:
-        messagebox.showerror("Erro", f"Erro ao conectar à API: {e}")
+        print(f"Erro ao conectar à API: {e}")
         return []
 
 moedas = obter_moedas()
 
 # Função para realizar a conversão
-def converter():
-    moeda_origem = combo_origem.get()
-    moeda_destino = combo_destino.get()
+def converter(moeda_origem, moeda_destino, quantia):
     try:
-        quantia = float(entry_valor.get())
         if quantia <= 0:
             raise ValueError("O valor deve ser maior que zero.")
     except ValueError:
-        messagebox.showerror("Erro", "Digite um valor válido maior que zero.")
-        return
+        print("Erro: Digite um valor válido maior que zero.")
+        return None
     
     try:
         response = requests.get(BASE_URL + moeda_origem)
@@ -46,12 +41,12 @@ def converter():
         if taxa_cambio is None:
             raise ValueError(f"Taxa de câmbio para {moeda_destino} não encontrada.")
     except (requests.RequestException, ValueError) as e:
-        messagebox.showerror("Erro", f"Erro ao buscar os dados: {e}")
-        return
+        print(f"Erro ao buscar os dados: {e}")
+        return None
     
     valor_convertido = quantia * taxa_cambio
-    resultado_label.config(text=f"{format_currency(quantia, moeda_origem, locale='pt_BR')} equivale a "
-                              f"{format_currency(valor_convertido, moeda_destino, locale='pt_BR')}")
+    print(f"{format_currency(quantia, moeda_origem, locale='pt_BR')} equivale a "
+          f"{format_currency(valor_convertido, moeda_destino, locale='pt_BR')}")
     
     # Salvar histórico no CSV
     file_exists = os.path.isfile(HISTORICO_CSV)
@@ -60,38 +55,17 @@ def converter():
         if not file_exists:
             writer.writerow(["Origem", "Destino", "Valor", "Taxa", "Convertido", "Timestamp"])
         writer.writerow([moeda_origem, moeda_destino, quantia, taxa_cambio, valor_convertido, time.strftime('%Y-%m-%d %H:%M:%S')])
-    messagebox.showinfo("Sucesso", "Conversão salva no histórico!")
+    print("Conversão salva no histórico!")
+    return valor_convertido
 
-# Criar interface gráfica
-root = tk.Tk()
-root.title("Conversor de Moedas")
-root.geometry("400x300")
-
-frame = ttk.Frame(root, padding=10)
-frame.pack(expand=True, fill=tk.BOTH)
-
-# Combobox para selecionar moedas
-ttk.Label(frame, text="Moeda de Origem:").pack()
-combo_origem = ttk.Combobox(frame, values=moedas)
-combo_origem.pack()
-combo_origem.set("USD")
-
-ttk.Label(frame, text="Moeda de Destino:").pack()
-combo_destino = ttk.Combobox(frame, values=moedas)
-combo_destino.pack()
-combo_destino.set("BRL")
-
-# Campo para inserir o valor
-ttk.Label(frame, text="Valor a Converter:").pack()
-entry_valor = ttk.Entry(frame)
-entry_valor.pack()
-
-# Botão para converter
-botao_converter = ttk.Button(frame, text="Converter", command=converter)
-botao_converter.pack(pady=10)
-
-# Rótulo para mostrar o resultado
-resultado_label = ttk.Label(frame, text="")
-resultado_label.pack()
-
-root.mainloop()
+# Exemplo de uso sem interface gráfica
+if __name__ == "__main__":
+    print("Moedas disponíveis: ", ", ".join(moedas))
+    moeda_origem = input("Digite a moeda de origem (ex: USD, BRL, EUR): ").strip().upper()
+    moeda_destino = input("Digite a moeda de destino: ").strip().upper()
+    try:
+        quantia = float(input("Digite o valor a converter: ").strip())
+    except ValueError:
+        print("Erro: Digite um número válido.")
+    else:
+        converter(moeda_origem, moeda_destino, quantia)
