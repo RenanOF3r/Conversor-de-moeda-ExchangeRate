@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from babel.numbers import format_currency
 
-# 🔑 Obter chave da API do ambiente
+# Obter chave da API do ambiente
 API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
 if not API_KEY:
     raise ValueError("Erro: Chave da API não encontrada. Defina EXCHANGE_RATE_API_KEY nos Secrets do GitHub.")
