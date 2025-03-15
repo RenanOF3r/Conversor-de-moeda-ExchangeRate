@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Moedas</title>
+</head>
+<body>
+    <h1>Conversor de Moedas</h1>
+    
+    <label for="moeda_origem">Moeda de Origem:</label>
+    <select id="moeda_origem">
+        {% for moeda in moedas %}
+            <option value="{{ moeda }}">{{ moeda }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="moeda_destino">Moeda de Destino:</label>
+    <select id="moeda_destino">
+        {% for moeda in moedas %}
+            <option value="{{ moeda }}">{{ moeda }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="quantia">Valor:</label>
+    <input type="number" id="quantia" min="0.01" step="0.01" value="1">
+
+    <button onclick="converterMoeda()">Converter</button>
+
+    <p id="resultado"></p>
+
+    <script>
+        function converterMoeda() {
+            let moeda_origem = document.getElementById("moeda_origem").value;
+            let moeda_destino = document.getElementById("moeda_destino").value;
+            let quantia = document.getElementById("quantia").value;
+
+            fetch(`/converter?moeda_origem=${moeda_origem}&moeda_destino=${moeda_destino}&quantia=${quantia}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        document.getElementById("resultado").innerText = "Erro: " + data.erro;
+                    } else {
+                        document.getElementById("resultado").innerText = 
+                            `${quantia} ${moeda_origem} = ${data.valor_formatado}`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro:", error);
+                    document.getElementById("resultado").innerText = "Erro ao buscar a conversão.";
+                });
+        }
+    </script>
+</body>
+</html>
